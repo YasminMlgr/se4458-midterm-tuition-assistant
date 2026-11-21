@@ -2,13 +2,10 @@ const { Pool } = require("pg");
 const { loadConfig } = require("./config");
 const { createApp } = require("./app");
 const { PgRepository } = require("./repositories/pgRepository");
+const { buildPgOptions } = require("./dbConfig");
 
 const config = loadConfig();
-const pool = new Pool({
-  connectionString: config.databaseUrl,
-  ssl: config.databaseSsl ? { rejectUnauthorized: false } : undefined,
-  max: 10,
-});
+const pool = new Pool({ ...buildPgOptions(config), max: 10 });
 pool.on("error", (err) => console.error("Unexpected database error", err));
 
 const app = createApp({ repo: new PgRepository(pool), config });
