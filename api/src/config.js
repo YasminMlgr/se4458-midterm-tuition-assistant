@@ -10,7 +10,9 @@ function loadConfig(env = process.env) {
     nodeEnv,
     port: Number(env.PORT) || 3000,
     databaseUrl: env.DATABASE_URL || "postgres://postgres@localhost:5432/tuition",
+    // TLS to PostgreSQL is always verified when enabled (see dbConfig.js); the CA bundle can be overridden.
     databaseSsl: env.DATABASE_SSL === "true",
+    databaseSslCaFile: env.DATABASE_SSL_CA_FILE || "",
     jwtSecret,
     jwtIssuer: env.JWT_ISSUER || "tuition-api",
     jwtAudience: env.JWT_AUDIENCE || "tuition-clients",

@@ -2,6 +2,8 @@
 const bcrypt = require("bcryptjs");
 const { Client } = require("pg");
 const { loadConfig } = require("../src/config");
+const { buildPgOptions } = require("../src/dbConfig");
+const { resolveSeedPasswords } = require("./seedPasswords");
 
 const STUDENTS = [
   ["20260001", "Ayse Demir"],
@@ -27,17 +29,11 @@ const PAYMENTS = [
   ["SEED-0002", "20260003", "2026-FALL", 2500],
 ];
 
-// Demo defaults (documented in the README). On a public deployment override them with
-// SEED_STUDENT_PASSWORD / SEED_ADMIN_PASSWORD so the admin account is not guessable.
-const STUDENT_PASSWORD = process.env.SEED_STUDENT_PASSWORD || "Student123!";
-const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || "Admin123!";
-
 (async () => {
+  // Passwords come from SEED_STUDENT_PASSWORD / SEED_ADMIN_PASSWORD only; fail before touching the database.
+  const { student: STUDENT_PASSWORD, admin: ADMIN_PASSWORD } = resolveSeedPasswords();
   const config = loadConfig();
-  const client = new Client({
-    connectionString: config.databaseUrl,
-    ssl: config.databaseSsl ? { rejectUnauthorized: false } : undefined,
-  });
+  const client = new Client(buildPgOptions(config));
   await client.connect();
   try {
     await client.query("BEGIN");
@@ -78,9 +74,8 @@ const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || "Admin123!";
   } finally {
     await client.end();
   }
-  console.log("Seed data loaded.");
-  console.log(`Students: username = student number (e.g. 20260001), password = ${STUDENT_PASSWORD}`);
-  console.log(`Admin:    username = admin, password = ${ADMIN_PASSWORD}`);
+  console.log("Seed data loaded: 5 students (username = student number) and the 'admin' account.");
+  console.log("Passwords were taken from SEED_STUDENT_PASSWORD / SEED_ADMIN_PASSWORD and are not printed.");
 })().catch((err) => {
   console.error(err);
   process.exit(1);

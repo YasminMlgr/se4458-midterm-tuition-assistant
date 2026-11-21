@@ -3,13 +3,11 @@ const fs = require("fs");
 const path = require("path");
 const { Client } = require("pg");
 const { loadConfig } = require("../src/config");
+const { buildPgOptions } = require("../src/dbConfig");
 
 (async () => {
   const config = loadConfig();
-  const client = new Client({
-    connectionString: config.databaseUrl,
-    ssl: config.databaseSsl ? { rejectUnauthorized: false } : undefined,
-  });
+  const client = new Client(buildPgOptions(config));
   await client.connect();
   await client.query(fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8"));
   await client.end();
