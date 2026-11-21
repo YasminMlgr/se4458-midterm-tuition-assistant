@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Tuition Assistant</title>
+<style>
+  :root { --bg:#f5f6f8; --card:#fff; --ink:#1b2430; --muted:#6b7684; --line:#e1e5ea; --brand:#1f4fd8; --brand-ink:#fff; --user:#1f4fd8; --bot:#eef1f6; --ok:#13795b; --bad:#b42318; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#12161c; --card:#1a2029; --ink:#e8ecf2; --muted:#93a0b1; --line:#2b3441; --brand:#4b7bff; --bot:#232c39; --user:#3a63e0; --ok:#4cc9a0; --bad:#ff8a80; } }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 16px 40px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 20px; }
+  .card { background: var(--card); border:1px solid var(--line); border-radius: 14px; padding: 20px; }
+  label { display:block; font-size: 13px; color: var(--muted); margin: 12px 0 4px; }
+  input[type=text], input[type=password] { width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--ink); font:inherit; }
+  button { font:inherit; border:0; border-radius:10px; padding:10px 16px; background:var(--brand); color:var(--brand-ink); cursor:pointer; }
+  button:disabled { opacity:.55; cursor:default; }
+  button.ghost { background:transparent; color:var(--muted); border:1px solid var(--line); }
+  .err { color: var(--bad); margin-top: 10px; min-height: 1.2em; }
+  #chat { display:none; }
+  .bar { display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; }
+  .who { color: var(--muted); font-size: 13px; }
+  #log { height: 52vh; min-height: 300px; overflow-y:auto; padding: 4px 2px; display:flex; flex-direction:column; gap:12px; }
+  .msg { max-width: 88%; }
+  .msg.user { align-self:flex-end; }
+  .bubble { padding: 10px 14px; border-radius: 14px; white-space: pre-wrap; word-wrap: break-word; }
+  .user .bubble { background: var(--user); color:#fff; border-bottom-right-radius: 4px; }
+  .bot .bubble { background: var(--bot); border-bottom-left-radius: 4px; }
+  details.trace { margin-top: 6px; font-size: 12.5px; color: var(--muted); }
+  details.trace summary { cursor: pointer; }
+  .step { margin: 6px 0 0 4px; padding: 6px 10px; border-left: 3px solid var(--line); background: var(--card); border-radius: 6px; }
+  .step.ok { border-left-color: var(--ok); } .step.fail { border-left-color: var(--bad); }
+  .step code { font-family: ui-monospace,Menlo,Consolas,monospace; font-size: 12px; color: var(--ink); word-break: break-all; }
+  .tag { display:inline-block; font-size: 11px; padding: 1px 7px; border-radius: 99px; border:1px solid var(--line); margin-left: 6px; }
+  form.send { display:flex; gap:8px; margin-top: 12px; }
+  form.send input { flex:1; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin-top: 12px; }
+  .chip { background: var(--bg); color: var(--ink); border:1px solid var(--line); font-size: 13px; padding: 6px 12px; border-radius: 99px; }
+  .typing { color: var(--muted); font-style: italic; }
+</style>
+</head>
+<body>
+<main>
+  <h1>AI Tuition Assistant</h1>
+  <p class="sub">Ask about tuition policies, check your live balance, or make a payment (with explicit confirmation).</p>
+
+  <section id="login" class="card">
+    <form id="loginForm">
+      <label for="u">Student number</label>
+      <input id="u" type="text" autocomplete="username" required>
+      <label for="p">Password</label>
+      <input id="p" type="password" autocomplete="current-password" required>
+      <div style="margin-top:16px"><button id="loginBtn" type="submit">Log in</button></div>
+      <div id="loginErr" class="err" role="alert"></div>
+    </form>
+  </section>
+
+  <section id="chat" class="card">
+    <div class="bar"><span class="who" id="who"></span><button class="ghost" id="logout" type="button">Log out</button></div>
+    <div id="log" aria-live="polite"></div>
+    <div class="chips" id="chips"></div>
+    <form class="send" id="sendForm">
+      <input id="m" type="text" placeholder="Type your question…" autocomplete="off" maxlength="1000">
+      <button id="sendBtn" type="submit">Send</button>
+    </form>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+let sessionId = null;
+const SUGGESTIONS = ["When is the Fall tuition deadline?", "What is my balance?", "Can I pay my balance in three installments?", "I want to pay 500 for 2026-FALL"];
+
+function add(role, text, trace) {
+  const wrap = document.createElement("div");
+  wrap.className = "msg " + (role === "user" ? "user" : "bot");
+  const b = document.createElement("div"); b.className = "bubble"; b.textContent = text; wrap.appendChild(b);
+  if (trace && trace.length) {
+    const d = document.createElement("details"); d.className = "trace";
+    const s = document.createElement("summary"); s.textContent = "Tool trace (" + trace.length + ")"; d.appendChild(s);
+    for (const t of trace) {
+      const st = document.createElement("div"); st.className = "step " + (t.ok ? "ok" : "fail");
+      const head = document.createElement("div");
+      const name = document.createElement("strong"); name.textContent = t.step + ". " + t.tool;
+      const tag = document.createElement("span"); tag.className = "tag"; tag.textContent = t.via;
+      head.append(name, tag); st.appendChild(head);
+      const args = document.createElement("div"); const c = document.createElement("code"); c.textContent = "args: " + JSON.stringify(t.args); args.appendChild(c); st.appendChild(args);
+      const res = document.createElement("div"); res.textContent = (t.ok ? "✓ " : "✗ ") + t.summary + "  (" + t.ms + " ms)"; st.appendChild(res);
+      d.appendChild(st);
+    }
+    wrap.appendChild(d);
+  }
+  $("log").appendChild(wrap); $("log").scrollTop = $("log").scrollHeight; return wrap;
+}
+
+$("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault(); $("loginErr").textContent = ""; $("loginBtn").disabled = true;
+  try {
+    const r = await fetch("/api/login", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ username: $("u").value, password: $("p").value }) });
+    const j = await r.json();
+    if (!r.ok) { $("loginErr").textContent = j.error || "Login failed"; return; }
+    sessionId = j.sessionId; $("p").value = "";
+    $("who").textContent = "Logged in as student " + j.studentNo;
+    $("login").style.display = "none"; $("chat").style.display = "block";
+    add("bot", "Hi! I can answer tuition policy questions, show your live balance, and help you pay. What would you like to know?");
+    const chips = $("chips"); chips.textContent = "";
+    for (const s of SUGGESTIONS) { const c = document.createElement("button"); c.type = "button"; c.className = "chip"; c.textContent = s; c.onclick = () => send(s); chips.appendChild(c); }
+  } catch { $("loginErr").textContent = "Could not reach the server."; } finally { $("loginBtn").disabled = false; }
+});
+
+async function send(text) {
+  if (!text.trim() || !sessionId) return;
+  add("user", text); $("m").value = ""; $("sendBtn").disabled = true;
+  const wait = add("bot", "Thinking…"); wait.querySelector(".bubble").classList.add("typing");
+  try {
+    const r = await fetch("/api/chat", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ sessionId, message: text }) });
+    const j = await r.json(); wait.remove();
+    if (r.status === 401) { add("bot", j.error); return; }
+    add("bot", r.ok ? j.reply : (j.error || "Something went wrong."), r.ok ? j.trace : null);
+  } catch { wait.remove(); add("bot", "Network error. Please try again."); }
+  finally { $("sendBtn").disabled = false; $("m").focus(); }
+}
+$("sendForm").addEventListener("submit", (e) => { e.preventDefault(); send($("m").value); });
+$("logout").addEventListener("click", async () => {
+  await fetch("/api/logout", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ sessionId }) });
+  sessionId = null; $("log").textContent = ""; $("chat").style.display = "none"; $("login").style.display = "block";
+});
+</script>
+</body>
+</html>
