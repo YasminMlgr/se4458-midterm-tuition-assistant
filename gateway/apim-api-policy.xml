@@ -1,0 +1,72 @@
+<!--
+  Azure API Management (Consumption) - API-level policy for the Tuition API.
+  Gateway: https://apim-se4458-tuition-yasmin.azure-api.net   (routes: /api/v1/...)
+
+  Named values (Secret type) must exist before saving this policy. Values are NEVER stored in the repo:
+    gateway-secret        same value as the Container Apps secret "gateway-secret" (the API checks X-Gateway-Secret)
+    jwt-signing-key-b64   Base64 of the exact JWT_SECRET string (HS256 key; the API uses the raw UTF-8 bytes)
+
+  Route policy (secure by default - anything not listed as public requires a valid JWT):
+    public     POST /api/v1/auth/login, GET /api/v1/health, GET /api/v1/tuition/mobile/{studentNo}
+    JWT        GET /api/v1/tuition/{studentNo}, POST /api/v1/tuition/payments
+    JWT+admin  /api/v1/admin/**
+  The daily 3-calls-per-student limit for the mobile route is enforced by the API (keyed by student number),
+  and its 429 is passed through; APIM rate-limit-by-key windows are too short for a daily limit.
+-->
+<policies>
+  <inbound>
+    <base />
+    <!-- Always set by the gateway; a client-supplied value is overwritten. -->
+    <set-header name="X-Gateway-Secret" exists-action="override">
+      <value>{{gateway-secret}}</value>
+    </set-header>
+    <choose>
+      <when condition="@{
+          var p = context.Request.Url.Path.TrimEnd('/');
+          return p == &quot;/api/v1/auth/login&quot; || p == &quot;/api/v1/health&quot; || p.StartsWith(&quot;/api/v1/tuition/mobile/&quot;);
+        }">
+        <!-- public route: no JWT required -->
+      </when>
+      <when condition="@(context.Request.Url.Path.StartsWith(&quot;/api/v1/admin/&quot;))">
+        <validate-jwt header-name="Authorization" require-scheme="Bearer" require-expiration-time="true" require-signed-tokens="true" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized: valid admin JWT required">
+          <issuer-signing-keys>
+            <key>{{jwt-signing-key-b64}}</key>
+          </issuer-signing-keys>
+          <audiences>
+            <audience>tuition-clients</audience>
+          </audiences>
+          <issuers>
+            <issuer>tuition-api</issuer>
+          </issuers>
+          <required-claims>
+            <claim name="role" match="all">
+              <value>admin</value>
+            </claim>
+          </required-claims>
+        </validate-jwt>
+      </when>
+      <otherwise>
+        <validate-jwt header-name="Authorization" require-scheme="Bearer" require-expiration-time="true" require-signed-tokens="true" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized: valid JWT required">
+          <issuer-signing-keys>
+            <key>{{jwt-signing-key-b64}}</key>
+          </issuer-signing-keys>
+          <audiences>
+            <audience>tuition-clients</audience>
+          </audiences>
+          <issuers>
+            <issuer>tuition-api</issuer>
+          </issuers>
+        </validate-jwt>
+      </otherwise>
+    </choose>
+  </inbound>
+  <backend>
+    <base />
+  </backend>
+  <outbound>
+    <base />
+  </outbound>
+  <on-error>
+    <base />
+  </on-error>
+</policies>
