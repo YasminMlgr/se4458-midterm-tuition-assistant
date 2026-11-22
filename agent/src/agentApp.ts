@@ -27,7 +27,7 @@ export function createAgentApp(deps: { agent: TuitionAgent; api: TuitionApi; now
   }, 5 * 60 * 1000);
   sweep.unref();
 
-  app.get("/health", (_req, res) => res.json({ status: "ok" }));
+  app.get("/health", (_req, res) => res.json({ status: "ok", thoughtSignatureEcho: true }));
 
   app.post("/api/login", async (req, res) => {
     const { username, password } = req.body ?? {};
