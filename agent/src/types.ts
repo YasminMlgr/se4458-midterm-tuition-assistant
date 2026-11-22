@@ -8,6 +8,8 @@ export interface AssistantToolCall {
   id: string;
   type: "function";
   function: { name: string; arguments: string };
+  /** Gemini (OpenAI-compat) thought_signature etc.; must be echoed back verbatim on the next request. */
+  extra_content?: unknown;
 }
 
 export interface ToolSpec {
@@ -19,7 +21,7 @@ export interface ToolSpec {
 
 export interface ModelReply {
   content: string | null;
-  toolCalls: { id: string; name: string; arguments: string }[];
+  toolCalls: { id: string; name: string; arguments: string; extra_content?: unknown }[];
 }
 
 /** The only thing the agent needs from an LLM. Real: OpenAI-compatible API (Gemini/OpenAI). Tests: a scripted fake. */

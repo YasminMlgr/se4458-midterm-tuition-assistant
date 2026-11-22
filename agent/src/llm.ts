@@ -38,6 +38,7 @@ export class OpenAiCompatibleModel implements ChatModel {
           id: c.id || `call_${randomUUID().slice(0, 8)}`,
           name: (c as any).function.name,
           arguments: (c as any).function.arguments || "{}",
+          ...((c as any).extra_content ? { extra_content: (c as any).extra_content } : {}),
         })),
     };
   }

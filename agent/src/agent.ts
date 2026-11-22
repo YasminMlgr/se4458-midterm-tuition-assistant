@@ -116,6 +116,7 @@ export class TuitionAgent {
           id: c.id,
           type: "function",
           function: { name: c.name, arguments: c.arguments },
+          ...(c.extra_content ? { extra_content: c.extra_content } : {}),
         }));
         messages.push({ role: "assistant", content: reply.content, tool_calls: toolCalls });
         for (const call of reply.toolCalls) {
