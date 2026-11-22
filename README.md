@@ -152,7 +152,9 @@ on 22-23 Nov 2026 (reported by the student's own manual runs; the screenshot of 
 | MCP retrieval test 3 (early-withdrawal refund) | live MCP trace, 3 matches: 6.1, 6.2, 6.3 | `08-mcp-retrieval-refund.png` |
 | Protected gateway route | gateway: no JWT / invalid JWT → 401; valid student JWT → 200; student JWT on an admin route → 401; direct call to the API without the gateway secret → 403 `GATEWAY_REQUIRED` | `09-gateway-protected-401-without-jwt.png`, `10-gateway-protected-200-with-jwt.png`, `11-gateway-direct-backend-403.png` |
 | MCP token protection | from the agent container: `POST /mcp` without token → 401; with token `tools/list` → 200 and `search_tuition_policies` → 200 | (console output; described in `docs/deployment.md`) |
-| Unit tests | 78 + 19 + 22 passed locally (API integration tests run in CI) | `12-…`, `13-…`, `14-…` |
+| Unit tests | 78 + 19 + 22 passed locally (API integration tests run in CI) | [`12-unit-tests-api.txt`](docs/evidence/12-unit-tests-api.txt), [`13-unit-tests-mcp.txt`](docs/evidence/13-unit-tests-mcp.txt), [`14-unit-tests-agent.txt`](docs/evidence/14-unit-tests-agent.txt) |
+| Azure resources | resource group `rg-se4458-midterm`, 7/7 resources: 3 Container Apps, Container Apps environment, PostgreSQL, API Management, Log Analytics | `15-azure-resources.png` |
+| Swagger UI | live `/api-docs` of the Tuition API listing all endpoints | `16-swagger-ui.png` |
 | Local MCP retrieval (3 queries, before deployment) | [`docs/evidence/mcp-retrieval-local.md`](docs/evidence/mcp-retrieval-local.md), marked as a local run | file present |
 
 The screenshots are added by the student; a row is only complete when its file exists in `docs/evidence/`.
