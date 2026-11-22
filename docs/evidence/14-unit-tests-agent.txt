@@ -1,0 +1,148 @@
+# 2026-11-22T22:16:31Z  cd agent && npm test
+
+> tuition-agent@1.0.0 test
+> tsx --test tests/*.test.ts
+
+TAP version 13
+# Subtest: scenario 1 - policy question uses MCP only (no REST call)
+ok 1 - scenario 1 - policy question uses MCP only (no REST call)
+  ---
+  duration_ms: 1.983973
+  type: 'test'
+  ...
+# Subtest: scenario 2 - balance question uses the REST API only, with the student's own token and number
+ok 2 - scenario 2 - balance question uses the REST API only, with the student's own token and number
+  ---
+  duration_ms: 0.458439
+  type: 'test'
+  ...
+# Subtest: scenario 3 - a combined question uses both MCP and REST
+ok 3 - scenario 3 - a combined question uses both MCP and REST
+  ---
+  duration_ms: 0.235176
+  type: 'test'
+  ...
+# Subtest: payment: first message only prepares the payment and shows student, term, amount and balance - nothing is charged
+ok 4 - payment: first message only prepares the payment and shows student, term, amount and balance - nothing is charged
+  ---
+  duration_ms: 10.737745
+  type: 'test'
+  ...
+# Subtest: payment: 'Can I pay 500?' is a question, not consent - the LLM's attempt to submit is blocked
+ok 5 - payment: 'Can I pay 500?' is a question, not consent - the LLM's attempt to submit is blocked
+  ---
+  duration_ms: 0.818271
+  type: 'test'
+  ...
+# Subtest: payment: explicit 'yes' in a later message submits exactly the prepared payment and reports the API result
+ok 6 - payment: explicit 'yes' in a later message submits exactly the prepared payment and reports the API result
+  ---
+  duration_ms: 1.146938
+  type: 'test'
+  ...
+# Subtest: payment: the LLM cannot propose and confirm within the same turn
+ok 7 - payment: the LLM cannot propose and confirm within the same turn
+  ---
+  duration_ms: 0.420263
+  type: 'test'
+  ...
+# Subtest: payment: submit without any prepared payment is blocked
+ok 8 - payment: submit without any prepared payment is blocked
+  ---
+  duration_ms: 0.154985
+  type: 'test'
+  ...
+# Subtest: payment: cancelling discards the prepared payment without calling the LLM
+ok 9 - payment: cancelling discards the prepared payment without calling the LLM
+  ---
+  duration_ms: 0.495018
+  type: 'test'
+  ...
+# Subtest: payment: a prepared payment expires
+ok 10 - payment: a prepared payment expires
+  ---
+  duration_ms: 0.573085
+  type: 'test'
+  ...
+# Subtest: payment: an amount above the live balance is not even prepared
+ok 11 - payment: an amount above the live balance is not even prepared
+  ---
+  duration_ms: 0.447562
+  type: 'test'
+  ...
+# Subtest: payment: invalid amounts / terms are rejected by the agent before any API call
+ok 12 - payment: invalid amounts / terms are rejected by the agent before any API call
+  ---
+  duration_ms: 0.170226
+  type: 'test'
+  ...
+# Subtest: payment: if the API rejects the payment the reply does not claim success
+ok 13 - payment: if the API rejects the payment the reply does not claim success
+  ---
+  duration_ms: 0.508419
+  type: 'test'
+  ...
+# Subtest: payment: on a network failure the same transaction ID is kept so a retry cannot double-charge
+ok 14 - payment: on a network failure the same transaction ID is kept so a retry cannot double-charge
+  ---
+  duration_ms: 0.379605
+  type: 'test'
+  ...
+# Subtest: identity: a studentNo supplied by the LLM (e.g. prompt injection) is ignored
+ok 15 - identity: a studentNo supplied by the LLM (e.g. prompt injection) is ignored
+  ---
+  duration_ms: 0.09609
+  type: 'test'
+  ...
+# Subtest: robustness: unknown tools and malformed arguments are handled without crashing
+ok 16 - robustness: unknown tools and malformed arguments are handled without crashing
+  ---
+  duration_ms: 0.101772
+  type: 'test'
+  ...
+# Subtest: robustness: an LLM outage returns a friendly message and charges nothing
+ok 17 - robustness: an LLM outage returns a friendly message and charges nothing
+  ---
+  duration_ms: 0.092712
+  type: 'test'
+  ...
+# Subtest: language: Turkish messages get Turkish confirmation and result texts
+ok 18 - language: Turkish messages get Turkish confirmation and result texts
+  ---
+  duration_ms: 0.349951
+  type: 'test'
+  ...
+# Subtest: confirmation detector: explicit consent only
+ok 19 - confirmation detector: explicit consent only
+  ---
+  duration_ms: 0.336734
+  type: 'test'
+  ...
+# Subtest: login: wrong credentials -> 401; admin accounts are refused; student gets a session
+ok 20 - login: wrong credentials -> 401; admin accounts are refused; student gets a session
+  ---
+  duration_ms: 58.115211
+  type: 'test'
+  ...
+# Subtest: chat: requires a valid session, validates the message, and returns reply + trace
+ok 21 - chat: requires a valid session, validates the message, and returns reply + trace
+  ---
+  duration_ms: 18.451458
+  type: 'test'
+  ...
+# Subtest: the chat UI is served and health responds
+ok 22 - the chat UI is served and health responds
+  ---
+  duration_ms: 7.380355
+  type: 'test'
+  ...
+1..22
+# tests 22
+# suites 0
+# pass 22
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 685.041306
+# exit code: 0

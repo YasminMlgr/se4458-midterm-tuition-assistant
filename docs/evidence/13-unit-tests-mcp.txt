@@ -1,0 +1,132 @@
+# 2026-11-22T22:16:29Z  cd mcp-server && npm test
+
+> tuition-mcp-server@1.0.0 test
+> tsx --test tests/*.test.ts
+
+TAP version 13
+# Subtest: extracts the document ID and title
+ok 1 - extracts the document ID and title
+  ---
+  duration_ms: 0.576691
+  type: 'test'
+  ...
+# Subtest: creates one chunk per numbered section that has its own text
+ok 2 - creates one chunk per numbered section that has its own text
+  ---
+  duration_ms: 0.244238
+  type: 'test'
+  ...
+# Subtest: keeps heading, parent heading and clean text for a section
+ok 3 - keeps heading, parent heading and clean text for a section
+  ---
+  duration_ms: 0.190967
+  type: 'test'
+  ...
+# Subtest: does not treat headings inside code fences as sections
+ok 4 - does not treat headings inside code fences as sections
+  ---
+  duration_ms: 0.983949
+  type: 'test'
+  ...
+# [mcp] indexed 25 sections from University_Tuition_Policies.md (UNI-TUITION-2026-01)
+# Subtest: MCP protocol: the tool is listed with its input schema
+ok 5 - MCP protocol: the tool is listed with its input schema
+  ---
+  duration_ms: 15.558191
+  type: 'test'
+  ...
+# Subtest: MCP protocol: calling the tool returns document, documentId and matches with section/heading/text
+ok 6 - MCP protocol: calling the tool returns document, documentId and matches with section/heading/text
+  ---
+  duration_ms: 5.395042
+  type: 'test'
+  ...
+# Subtest: Streamable HTTP transport works end-to-end and /health reports the index
+ok 7 - Streamable HTTP transport works end-to-end and /health reports the index
+  ---
+  duration_ms: 54.560071
+  type: 'test'
+  ...
+# Subtest: Streamable HTTP: optional bearer token is enforced
+ok 8 - Streamable HTTP: optional bearer token is enforced
+  ---
+  duration_ms: 20.461203
+  type: 'test'
+  ...
+# [mcp] indexed 25 sections from University_Tuition_Policies.md (UNI-TUITION-2026-01)
+# Subtest: retrieval \#1 - payment deadline -> Section 2.1 (Fall term deadline)
+ok 9 - retrieval \#1 - payment deadline -> Section 2.1 (Fall term deadline)
+  ---
+  duration_ms: 7.318089
+  type: 'test'
+  ...
+# Subtest: retrieval \#2 - installment rules -> Section 3.x
+ok 10 - retrieval \#2 - installment rules -> Section 3.x
+  ---
+  duration_ms: 0.2268
+  type: 'test'
+  ...
+# Subtest: retrieval \#3 - refund after withdrawal -> Section 6.x with the 80% / 14 days rule
+ok 11 - retrieval \#3 - refund after withdrawal -> Section 6.x with the 80% / 14 days rule
+  ---
+  duration_ms: 0.151192
+  type: 'test'
+  ...
+# Subtest: late fee question finds Section 4.1
+ok 12 - late fee question finds Section 4.1
+  ---
+  duration_ms: 0.180218
+  type: 'test'
+  ...
+# Subtest: payment confirmation question finds Section 7.3
+ok 13 - payment confirmation question finds Section 7.3
+  ---
+  duration_ms: 0.210821
+  type: 'test'
+  ...
+# Subtest: scholarship question finds Section 5
+ok 14 - scholarship question finds Section 5
+  ---
+  duration_ms: 0.145682
+  type: 'test'
+  ...
+# Subtest: results carry section, heading, text and a positive score, ordered by score
+ok 15 - results carry section, heading, text and a positive score, ordered by score
+  ---
+  duration_ms: 0.171868
+  type: 'test'
+  ...
+# Subtest: respects max_results
+ok 16 - respects max_results
+  ---
+  duration_ms: 0.082701
+  type: 'test'
+  ...
+# Subtest: unrelated or empty queries return no matches instead of noise
+ok 17 - unrelated or empty queries return no matches instead of noise
+  ---
+  duration_ms: 1.865091
+  type: 'test'
+  ...
+# Subtest: the index is built once: querying does not rebuild it
+ok 18 - the index is built once: querying does not rebuild it
+  ---
+  duration_ms: 0.763529
+  type: 'test'
+  ...
+# Subtest: stemming maps inflected forms together
+ok 19 - stemming maps inflected forms together
+  ---
+  duration_ms: 0.190849
+  type: 'test'
+  ...
+1..19
+# tests 19
+# suites 0
+# pass 19
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1113.234086
+# exit code: 0
