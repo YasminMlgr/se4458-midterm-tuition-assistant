@@ -125,6 +125,16 @@ Decisions and limitations of the deployed setup:
 - **Not implemented:** login brute-force throttling at the gateway; real card processing (payments are simulated, as the assignment says).
 - PostgreSQL uses verified TLS; its firewall allows Azure services (a managed-database firewall rule, not open to the internet at large).
 
+### Demo Access
+
+The deployed AI Agent can be accessed using the following information:
+
+- **Application:** https://tuition-agent.icyfield-a4e76f6b.swedencentral.azurecontainerapps.io/
+- **Demo Student Number:** `20260001`
+- **Password:** `seedstucontain.1221`
+
+The demo video and test evidence are available in this repository.
+
 ## 6. Running locally
 
 ```bash
