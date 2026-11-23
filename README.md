@@ -4,6 +4,18 @@ Student: Yasmin Malgir. A conversational assistant for tuition questions that co
 function calling**, a separate **MCP server** for policy search, a **versioned REST API on PostgreSQL**, and an
 **API gateway** that every REST call passes through.
 
+## 🎬 Demo Video
+
+[▶ Watch the Full Project Demo](https://youtu.be/FsYsUvQWLfU)
+
+The demonstration includes:
+- MCP-only, API-only, and combined AI Agent scenarios
+- Tuition payment with explicit confirmation
+- Three MCP policy retrieval examples
+- API Gateway security tests (401, 200, 403)
+- Swagger API documentation and Azure deployment
+- Live execution of 119 automated tests
+
 ```
 Student ──► Agent (Express + LLM tool calling) ──► LLM (Gemini, OpenAI-compatible endpoint)
               │  MCP client                         ▲ tool results go back to the LLM
